@@ -9,5 +9,8 @@ public abstract class TreeNode{
     public int getDepth(){
         return depth;
     }
+    public void setDepth(int newDepth){
+        this.depth = newDepth;
+    }
 
 }
