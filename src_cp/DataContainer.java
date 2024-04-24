@@ -2,9 +2,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Random;
 
 //NOTE: Instead of declaring the attributes, I've made a general 2D String data array to keep it concise
 //this can be used for either user input data [0][12] or any number bootstrapped/feature selected data [1000][3]
+
+//in the loadDataset method, i am assuming for now that if you spend 4 or more hours, you are at risk of social media addiction, this can be changed later
+//this label gets appended to the dataset[][12] at index 12
 
 public class DataContainer {
 
@@ -14,7 +18,7 @@ public class DataContainer {
     private static String[][] dataset; //static initialized
     static {
         try {
-            dataset = loadData("dummy_data.csv");
+            dataset = loadDataset("dummy_data.csv");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -31,7 +35,7 @@ public class DataContainer {
     public DataContainer() {
         data = dataset;
         rows = 1000;
-        columns = 12;
+        columns = 13; //last index will contain the label
     }
 
     //constructor for user input
@@ -47,6 +51,7 @@ public class DataContainer {
         this.rows = rows;
         this.columns = columns;
         data = new String[rows][columns];
+        loadRandomData();
     }
 
    
@@ -54,7 +59,7 @@ public class DataContainer {
     //METHODS ----------------------------------------------------------------------------
 
     //helper for loading dataset
-    private static String[][] loadData(String source) throws IOException {
+    private static String[][] loadDataset(String source) throws IOException {
         
         //TODO: HANDLE MISSING DATA FROM DATASET
         //ASSUME FOR NOW THAT THE DATASET IS NOT MISSING ANY DATA
@@ -62,12 +67,16 @@ public class DataContainer {
             br.readLine(); //consume header to skip
             String line;
             int row = 0;
-            String temp[][] = new String[1000][12];
+            String temp[][] = new String[1000][13]; //ADDED 13 here for label assume for now that just timespent >= 4 is a 1.
             while ((line = br.readLine()) != null && row < 1000) {
                 String[] rowData = line.split(","); 
                 for (int col = 0; col < temp[row].length && col < rowData.length; col++) {
                     temp[row][col] = rowData[col];
                 }
+                //ASSIGN LABEL ON TIMESPENT FOR NOW
+                int timeSpent = Integer.parseInt(rowData[2]);
+                if (timeSpent >= 4) temp[row][12] = "1";
+                else temp[row][12] = "0";
                 row++;
             }
         return temp;
@@ -106,6 +115,7 @@ public class DataContainer {
     //NOTE: may be better to do average for numerical features? and mode for rest?
     //TODO: also prof said to check if col is empty
     private String dataImputation(int c) {
+
         HashMap<String, Integer> count = new HashMap<>();
         for (int r = 0; r < 1000; r++) {                        //iterate through values of that column
             String value = dataset[r][c];
@@ -132,6 +142,18 @@ public class DataContainer {
         return mode;
     }
 
+    private void loadRandomData() {
+        Random rand = new Random();
+        int randomRow;   
+        for (int r = 0; r < rows; r++) {
+            randomRow = rand.nextInt(1000);
+            for (int c = 0; c < columns; c++) {
+                data[r][c] = dataset[randomRow][c]; //load into data
+            }
+        }
+   
+    }
+
 
     public String getValue(int r, int c) {
     	return data[r][c];
@@ -150,7 +172,7 @@ public class DataContainer {
 
     public void printDataset() {
         for (int r = 0; r < 1000; r++) {
-            for (int c = 0; c < 12; c++) {
+            for (int c = 0; c < 13; c++) {
                 System.out.print(dataset[r][c] + " ");
             }
             System.out.println();

@@ -1,9 +1,50 @@
 import java.io.IOException;
 
-public class DCTest {
+public class Test {
+
+
 
     public static void main(String[] args) throws IOException {
     
+    //tree testing (IN PROGRESS) ---------------------------------------------------
+
+
+    DecisionTree root = new DecisionTree();
+    root.buildTree(3); //num of features passed in
+    root.print();
+
+
+    //decision node test cases (Tree class will handle) --------------------------------------
+
+    // DataContainer dataset = new DataContainer();
+    // DecisionNode root = new DecisionNode(dataset);
+    // //root.print();
+    // System.out.println(root.getLabel(0));
+    // System.out.println(root.getLabel(1));
+    // System.out.println(root.getLabel(2));
+    // System.out.println(root.getLabel(3));
+    // System.out.println(root.getLabel(4));
+
+    // // just testing left and right w/ random data, SPLITTINGCRITERIA() will be the one using this
+    // DataContainer dataLeft = new DataContainer(10, 13);
+    // DataContainer dataRight = new DataContainer(5, 13);
+    
+    // DecisionNode nodeLeft = new DecisionNode(dataLeft);
+    // DecisionNode nodeRight = new DecisionNode(dataRight);
+
+    // root.setLeft(nodeLeft);
+    // root.setRight(nodeRight);
+
+
+    // System.out.println("I am roots left child----");
+    // root.getLeft().getData().print();
+    // System.out.println("\nI am roots right child----");
+    // root.getRight().getData().print();
+
+    // System.out.println(root.isLeaf());
+    // System.out.println(nodeLeft.isLeaf());
+    // System.out.println(nodeRight.isLeaf());
+
 
     //dataset test case ---------------------------------------------
 
@@ -16,9 +57,9 @@ public class DCTest {
 
     //bootstrap & feature project test case -------------------------
 
-    // DataContainer bootstrappedData = new DataContainer(1000, 3);
-    // bootstrappedData.print();           //prints null w/ correct amount of columns
-    // bootstrappedData.printDataset();    //prints whole dataset off any object
+    // DataContainer bootstrappedData = new DataContainer(1000, 13);
+    // bootstrappedData.print();           
+    //bootstrappedData.printDataset();    //prints whole dataset off any object
 
 
 
