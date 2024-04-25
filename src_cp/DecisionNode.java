@@ -3,13 +3,12 @@ public class DecisionNode {
 	private DataContainer data;
 	private DecisionNode left;
 	private DecisionNode right;
-	//will contain a condition to split the nodes (maybe not actually? should be based on the features selected)
-
 
 	public DecisionNode() {
 		this.data = null;
 		this.left = null;
 		this.right = null;
+
 	}
 
 	//if root or leaf node
@@ -17,6 +16,7 @@ public class DecisionNode {
 		this.data = data;
 		this.left = null;
 		this.right = null;
+
 	}
 
 	//if not a leaf node, impurity found
@@ -25,6 +25,7 @@ public class DecisionNode {
 		this.left = left;
 		this.right = right;
 	}
+
 
 	public DecisionNode getRight(){
         return this.right;
@@ -50,21 +51,23 @@ public class DecisionNode {
     	return this.data;
     }
 
+
     public void print() {
     	this.data.print();
     }
 
     public boolean isLeaf() {
-    	return (this.right == null && this.left == null);
+    	return ((this.right == null && this.left == null) && (this.data.getLabelCount(0) == 0 || this.data.getLabelCount(1) == 0));
     }
 
     public String getLabel(int row) {
     	return this.data.getValue(row, 12);
     }
 
-
-    //TODO
-    //public boolean isPure() {}
+    //maybe dont need, easier to put in and call from data class
+    public boolean isPure() {
+    	return this.data.getLabelCount(0) == 0 || this.data.getLabelCount(1) == 0;
+    }
 
 
 

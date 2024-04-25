@@ -1,17 +1,25 @@
 import java.io.IOException;
+import java.lang.Math;
+import java.util.HashMap;
+
+
+
 
 public class Test {
 
-
+ 
+    
 
     public static void main(String[] args) throws IOException {
     
+
     //tree testing (IN PROGRESS) ---------------------------------------------------
 
+    DataContainer dataset = new DataContainer();
+    DecisionTree root = new DecisionTree(dataset);
+    root.buildTree(4); //num of features passed in
+    //root.print();
 
-    DecisionTree root = new DecisionTree();
-    root.buildTree(3); //num of features passed in
-    root.print();
 
 
     //decision node test cases (Tree class will handle) --------------------------------------
@@ -44,6 +52,34 @@ public class Test {
     // System.out.println(root.isLeaf());
     // System.out.println(nodeLeft.isLeaf());
     // System.out.println(nodeRight.isLeaf());
+
+    //Testing out label counts, will be used to find impurity/IG/giniIndex
+    // DataContainer bootstrappedData = new DataContainer(10, 5);
+    // bootstrappedData.print();
+
+
+    //data container label tests ----------------------------
+
+    // DataContainer bootstrappedData = new DataContainer(5, 5);
+    // bootstrappedData.print();
+    // System.out.println("\nLabel 0 = " + bootstrappedData.getLabelCount(0));
+    // System.out.println("Label 1 = " + bootstrappedData.getLabelCount(1));
+    // DecisionNode node1 = new DecisionNode(bootstrappedData);
+    // System.out.println("Leaf = " + node1.isLeaf()); //may not need
+    // System.out.println("Pure = " + node1.isPure());
+    // System.out.println("data class is pure = " + bootstrappedData.isPure());
+    /*
+        18 non-binary 5 YouTube 1 
+        27 male 4 YouTube 1 
+        28 female 7 Instagram 1 
+        51 non-binary 4 Facebook 1 
+
+        Label 0 = 0
+        Label 1 = 5
+        Leaf = true
+        Pure = true
+        data class is pure = true
+    */
 
 
     //dataset test case ---------------------------------------------
