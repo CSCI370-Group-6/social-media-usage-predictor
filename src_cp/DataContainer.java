@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.ArrayList;
 
 //NOTE: Instead of declaring the attributes, I've made a general 2D String data array to keep it concise
 //this can be used for either user input data [0][12] or any number bootstrapped/feature selected data [1000][3]
@@ -26,7 +27,8 @@ public class DataContainer {
     private String[][] data; //userInput data or bootstrapped/feature selected data, for ex) userData = data[0][12] 
     private int rows;
     private int columns;
-
+    private int countLabel0;
+    private int countLabel1;
 
 
     //CONSTRUCTORS -----------------------------------------------------------------------
@@ -36,6 +38,8 @@ public class DataContainer {
         data = dataset;
         rows = 1000;
         columns = 13; //last index will contain the label
+        countLabel0 = countLabels(data, 0);
+        countLabel1 = countLabels(data, 1);
     }
 
     //constructor for user input
@@ -44,6 +48,8 @@ public class DataContainer {
         columns = 12;
         data = new String[rows][columns];
         readUserInput(userInput);
+        countLabel0 = 0;
+        countLabel1 = 0;
     }
 
     //constructor for bootstrapping & feature selection
@@ -51,12 +57,29 @@ public class DataContainer {
         this.rows = rows;
         this.columns = columns;
         data = new String[rows][columns];
-        loadRandomData();
+        loadRandomData(columns);
+        countLabel0 = countLabels(data, 0);
+        countLabel1 = countLabels(data, 1);    
     }
 
    
 
     //METHODS ----------------------------------------------------------------------------
+
+    private int countLabels(String[][] data, int label) {
+        int count0 = 0;
+        int count1 = 0;
+        int labelIndex = columns - 1;
+        
+        for (int r = 0; r < rows; r++) {
+            if (data[r][labelIndex] == "0") count0++;
+            else if (data[r][labelIndex] == "1") count1++;
+        }
+
+        if (label == 0) return count0;
+        else if (label == 1) return count1;
+        else return -1;
+    }
 
     //helper for loading dataset
     private static String[][] loadDataset(String source) throws IOException {
@@ -142,14 +165,15 @@ public class DataContainer {
         return mode;
     }
 
-    private void loadRandomData() {
+    private void loadRandomData(int columns) {
         Random rand = new Random();
         int randomRow;   
         for (int r = 0; r < rows; r++) {
             randomRow = rand.nextInt(1000);
-            for (int c = 0; c < columns; c++) {
+            for (int c = 0; c < columns - 1; c++) {
                 data[r][c] = dataset[randomRow][c]; //load into data
             }
+            data[r][columns - 1] = dataset[randomRow][12]; //load label
         }
    
     }
@@ -157,6 +181,14 @@ public class DataContainer {
 
     public String getValue(int r, int c) {
     	return data[r][c];
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public int getColumns() {
+        return columns;
     }
 
 
@@ -178,5 +210,129 @@ public class DataContainer {
             System.out.println();
         }
     }
+
+    public int getLabelCount(int label) {
+        if (label == 0) return this.countLabel0;
+        else if (label == 1) return this.countLabel1;
+        else {
+            System.out.println("INVALID LABEL");
+            return -1;
+        }
+    }
+
+    public String getLabel(int row) {
+        return this.getValue(row, 12);
+    }
+
+    public boolean isPure() {
+        return this.countLabel0 == 0 || this.countLabel1 == 0;
+    }
+
+    public String[] getRow(int rowIndex) {
+        return data[rowIndex];
+    }
+
+    private void addData(int r, int c, String value) {
+        data[r][c] = value;
+    }
+
+    public boolean isNumeric(String str) {
+        if (str == null || str.isEmpty()) {     //if null or empty
+            return false;
+        }
+        return str.matches("\\d+");             //checks if onlyd igits
+    }
+
+
+    public DataContainer split(boolean leftSplit, int indexOfFeature, String threshold) {
+        
+        ArrayList<ArrayList<String>> temp = new ArrayList<>();
+        int newRow = 0;
+        
+        if (isNumeric(threshold)) { // if a number
+
+            int numthreshold = Integer.parseInt(threshold);
+            if (leftSplit) {
+                for (int r = 0; r < this.rows; r++) {
+                    int value = Integer.parseInt(data[r][indexOfFeature]);
+                    if (value <= numthreshold) {
+                        ArrayList<String> newRowData = new ArrayList<>();
+                        for (int c = 0; c < this.columns; c++) {
+                            newRowData.add(data[r][c]);
+                        }
+                        temp.add(newRowData);
+                        newRow++;
+                    }
+                }
+            }
+            else {
+                for (int r = 0; r < this.rows; r++) {
+                    int value = Integer.parseInt(data[r][indexOfFeature]);
+                    if (value > numthreshold) {
+                        ArrayList<String> newRowData = new ArrayList<>();
+                        for (int c = 0; c < this.columns; c++) {
+                            newRowData.add(data[r][c]);
+                        }
+                        temp.add(newRowData);
+                        newRow++;
+                    }
+                }        
+            }
+        }
+        
+        else { //if categorical
+
+            if (leftSplit) {
+                for (int r = 0; r < this.rows; r++) {
+                    if (data[r][indexOfFeature].equals(threshold)) {
+                        ArrayList<String> newRowData = new ArrayList<>();
+                        for (int c = 0; c < this.columns; c++) {
+                            newRowData.add(data[r][c]);
+                        }
+                        temp.add(newRowData);
+                        newRow++;
+                    }
+                }
+            }
+            else {
+                for (int r = 0; r < this.rows; r++) {
+                    if (!data[r][indexOfFeature].equals(threshold)) {
+                        ArrayList<String> newRowData = new ArrayList<>();
+                        for (int c = 0; c < this.columns; c++) {
+                            newRowData.add(data[r][c]);
+                        }
+                        temp.add(newRowData);
+                        newRow++;
+                    }
+                }        
+            }
+        }
+
+    DataContainer newData = new DataContainer(temp.size(), temp.isEmpty() ? 0 : temp.get(0).size());
+
+        for (int r = 0; r < temp.size(); r++) {
+            for (int c = 0; c < temp.get(0).size(); c++) {
+                newData.addData(r, c, temp.get(r).get(c));
+            }
+        }
+
+        return newData;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
