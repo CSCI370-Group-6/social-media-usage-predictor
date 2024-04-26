@@ -7,63 +7,28 @@ public class DecisionTree extends DecisionNode{
 	private DecisionNode root;
 
 	public DecisionTree() {
-		this.root = new DecisionNode();
+        super();
+        this.root = null;
 	}
 
-    public DecisionTree(DataContainer dataset) {
-        this.root = new DecisionNode(dataset);
-    }
-
-    /*
-
-    100 bootstrapped datasets first
-    make a decision tree on each one
-    slect the features with most info gain
-    randomly select features (not same) and select one with highest IG
-
-    MAKING A DECISION TREE:
-    	- make a bootstrapped dataset (w/ constructor)
-    	- recursively split the bootstrapped dataset we made until we are left w/ pure leaf nodes
-    	- nodes will contain a condition to split the data (feature will decide condition)
-    	- if(!node.isPure()) split(); //this is the stopping criteria, simplest one
-    	- now we choose the condition that maximizes info gain (IG)
-            - will need to find best threshold
-    	- the model will compare every possible split and will chose the one w/ highest IG
-    		- model will traverse through every feature & feature value to search for the best feature and corresponding threshold
-    	- greedy algo
-    	- need a target value
-    	- all following splits will depend on the current one
-    	- use gini index, easier than finding entropy
-    		- GI = 1 - sum(p_i^(2))
-    	- then use to find IG
-    		- IG1 = G(parent) - sum(w_iG(child_i))
-    		- IG2 = ^^^^^^^
-    	- pick the highest one
-
-	*/
-
-
-
-	//IP
+	//IP, will need a for loop, but have to fix the right and left childs not connecting to parent
     public void buildTree(int numOfFeatures) {
+        //will be a for loop to make many decision trees
         DataContainer bootstrappedData = new DataContainer(1000, 13); //bootstrap first
-        root = buildTreeRecursively(bootstrappedData, numOfFeatures);
-        //ROOT.LEFT = .....
-        //ROOT.RIGHT = .....
-
+        this.root = new DecisionNode(bootstrappedData);
+        this.root = buildTreeRecursively(this.root, bootstrappedData, numOfFeatures);
     }
 
-    //IP
-    private DecisionNode buildTreeRecursively(DataContainer data, int numOfFeatures) {
-    	if (data.isPure()) return new DecisionNode(data); //STOPPING CRITERION when pure is our base case
+    //IP - ??????????, I'm not sure why the left and right childs are not linking to parent node? 
+    private DecisionNode buildTreeRecursively(DecisionNode parentNode, DataContainer data, int numOfFeatures) {
+    	if (data.isPure()) return new DecisionNode(data); //base case when pure, is return correct?
 
-    	int[] randomColumns = featureSelect(numOfFeatures);
+    	int[] randomColumns = featureSelect(numOfFeatures); //collect random features into an array, about 3
 
-    	//NOW PICK WHICH ONE TO SPLIT ON (MOST INFO GAIN)
+        //find the best feature to split on
 	    double maxInfoGain = Double.NEGATIVE_INFINITY; 
 	    int bestFeatureIndexToSplit = -1; 
         String bestThreshold = null;
-	    
         for (int featureIndex : randomColumns) {
             double infoGain;
             String threshold;
@@ -81,7 +46,7 @@ public class DecisionTree extends DecisionNode{
                 threshold = mode;
             }
 
-            //FOR TESTING
+            //FOR TESTING, seems correct
             // System.out.println("\nthreshold = " + threshold);
             // System.out.println("feature index = " + featureIndex);
             // System.out.println("infoGain = " + infoGain);
@@ -92,50 +57,48 @@ public class DecisionTree extends DecisionNode{
                 bestThreshold = threshold;
 	        }
 	    }
+        
+        //if no valid feature is found, return.
         if (bestFeatureIndexToSplit == -1) {
-            // Handle the case where no valid feature index was found
-            // For example, you could return a leaf node here
-            return new DecisionNode(data);
+            return new DecisionNode(data); //correct?
         }
 
         //FOR TESTING
-        System.out.println("\nMAX INFO GAIN = " + maxInfoGain);
-        System.out.println("bestFeatureIndexToSplit = " + bestFeatureIndexToSplit);
-        System.out.println("bestThreshold = " + bestThreshold);
-
-	    //THEN REC SPLIT!!!! need to split based on best feature
+        // System.out.println("\nMAX INFO GAIN = " + maxInfoGain);
+        // System.out.println("bestFeatureIndexToSplit = " + bestFeatureIndexToSplit);
+        // System.out.println("bestThreshold = " + bestThreshold);
         
 
         //need to split data first, then make nodes
         DataContainer leftData = data.split(true, bestFeatureIndexToSplit, bestThreshold);
         DataContainer rightData = data.split(false, bestFeatureIndexToSplit, bestThreshold);
 
-        System.out.println("\nI AM THE LEFT CHILD, I SPLIT ON " + bestThreshold);
-        leftData.print();
-        System.out.println("\n\n\n\n\n------------------");
+        //FOR TESTING
+        // System.out.println("\nI AM THE LEFT CHILD, I SPLIT ON " + bestThreshold);
+        // leftData.print();
+        // System.out.println("\n\n\n\n\n------------------");
+        // System.out.println("I AM THE RIGHT CHILD, I SPLIT ON THE REVERSE OF " + bestThreshold);
+        // rightData.print();
+       
 
+        //create children and input the split data
+        DecisionNode leftChild = new DecisionNode(leftData);
+        DecisionNode rightChild = new DecisionNode(rightData);
 
-        System.out.println("I AM THE RIGHT CHILD, I SPLIT ON THE REVERSE OF " + bestThreshold);
-        rightData.print();
+        //set the parent's node to the left and right children (THIS IS NOT WORKING???)
+        parentNode.setLeft(leftChild);
+        parentNode.setRight(rightChild);
 
-        //now make a decision node with the split data
-        DecisionNode currentNode = new DecisionNode(data);
+        //call function again to build left and right children
+        buildTreeRecursively(leftChild, leftData, numOfFeatures);
+        buildTreeRecursively(rightChild, rightData, numOfFeatures);
 
-        //recursively build left and right subtrees
-        DecisionNode leftChild = buildTreeRecursively(leftData, numOfFeatures);
-        DecisionNode rightChild = buildTreeRecursively(rightData, numOfFeatures);
-
-        //set left and right children of the current node
-        currentNode.setLeft(leftChild);
-        currentNode.setRight(rightChild);
-
-
-        return currentNode; 
-
+        //correct?
+        return parentNode; 
     }
 
+    //calculate average from numeric data for the threshold value
     private int averageThreshold(DataContainer data, int featureIndex) {
-        //calculate average for threshold
         int sum = 0;
         for (int r = 0; r < data.getRows(); r++) {
             sum += Integer.parseInt(data.getValue(r, featureIndex));
@@ -143,16 +106,17 @@ public class DecisionTree extends DecisionNode{
         return sum / data.getRows();
     }
 
+    
+    //calculate the mode from categorical data for the threshold value
     private String modeThreshold(DataContainer data, int featureIndex) {
-        //count the feature values
         HashMap<String, Integer> count = new HashMap<>();
         for (int r = 0; r < data.getRows(); r++) {
             String value = data.getValue(r, featureIndex);
-            if (!count.containsKey(value)) count.put(value, 1);  
+            if (!count.containsKey(value)) count.put(value, 1); //put in if it doesn't exist
             else count.put(value, count.get(value) + 1);        //increment count if exists already
         }
         
-        //calculate mode
+        //iterate through and count to find mode
         String modeThreshold = null;
         int max = 0;
         for (String value : count.keySet()) {
@@ -166,6 +130,7 @@ public class DecisionTree extends DecisionNode{
     }
 
 
+    //uses average of that column to determine the information gain of this potential split
     private Double calculateInfoGainFromNumericData(DataContainer data, int featureIndex, int averageThreshold) {
         
         int leftCountLabel0 = 0, leftCountLabel1 = 0;
@@ -193,10 +158,10 @@ public class DecisionTree extends DecisionNode{
         double informationGain = giniImpurityParent - ((double) (leftCountLabel0 + leftCountLabel1) / totalSamples * giniImpurityLeft 
                                  + (double) (rightCountLabel0 + rightCountLabel1) / totalSamples * giniImpurityRight);
 
-
         return informationGain;
     }
 
+    //uses the mode of that column to determine the information gain of this potential split
     private Double calculateInfoGainFromCategoricalData(DataContainer data, int featureIndex, String modeThreshold) {
         
         int leftCountLabel0 = 0, leftCountLabel1 = 0;
@@ -228,22 +193,23 @@ public class DecisionTree extends DecisionNode{
     }
 
 
+    //helper function used to calculate information gain
     private double calculateGiniImpurity(int countLabel0, int countLabel1) {
-        // Total number of samples in the subset
-        int totalSamples = countLabel0 + countLabel1;
+        //total number of labels
+        int totalSamples = countLabel0 + countLabel1; 
 
-        // Calculate the probabilities
+        //probabilities of each label
         double probability0 = (double) countLabel0 / totalSamples;
         double probability1 = (double) countLabel1 / totalSamples;
 
-        // Calculate Gini impurity
+        //giniImpurity formula
         double giniImpurity = 1.0 - (Math.pow(probability0, 2) + Math.pow(probability1, 2));
 
         return giniImpurity;
     }
 
 
-    //randomly select different columns
+    //randomly select different columns of the bootstrapped data
     private int[] featureSelect(int numOfFeatures) {
     	Random rand = new Random();
     	int[] randomColumns = new int[numOfFeatures];
@@ -267,10 +233,12 @@ public class DecisionTree extends DecisionNode{
     }
 
 
-    //IP
     public void print() {
-    	root.print();
+    	this.root.print();
     }
+
+
+
 
 
 }

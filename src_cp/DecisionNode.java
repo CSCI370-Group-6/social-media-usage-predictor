@@ -8,7 +8,6 @@ public class DecisionNode {
 		this.data = null;
 		this.left = null;
 		this.right = null;
-
 	}
 
 	//if root or leaf node
@@ -16,16 +15,14 @@ public class DecisionNode {
 		this.data = data;
 		this.left = null;
 		this.right = null;
-
 	}
 
-	//if not a leaf node, impurity found
+	//if not a leaf node, impurity found, (i havent used this, maybe dont need)
 	public DecisionNode(DataContainer data, DecisionNode left, DecisionNode right) {
 		this.data = data;
 		this.left = left;
 		this.right = right;
 	}
-
 
 	public DecisionNode getRight(){
         return this.right;
@@ -35,12 +32,12 @@ public class DecisionNode {
         return this.left;
     }
 
-    public void setRight(DecisionNode right){
-        this.right = right;
+    public void setRight(DecisionNode newRight){
+        this.right = newRight;
     }
 
-    public void setLeft(DecisionNode left){
-        this.left = left;
+    public void setLeft(DecisionNode newLeft){
+        this.left = newLeft;
     }
 
     public void setData(DataContainer data) {
@@ -50,7 +47,6 @@ public class DecisionNode {
     public DataContainer getData() {
     	return this.data;
     }
-
 
     public void print() {
     	this.data.print();
@@ -63,13 +59,5 @@ public class DecisionNode {
     public String getLabel(int row) {
     	return this.data.getValue(row, 12);
     }
-
-    //maybe dont need, easier to put in and call from data class
-    public boolean isPure() {
-    	return this.data.getLabelCount(0) == 0 || this.data.getLabelCount(1) == 0;
-    }
-
-
-
 
 }
