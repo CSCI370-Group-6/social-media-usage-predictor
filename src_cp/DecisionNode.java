@@ -3,11 +3,13 @@ public class DecisionNode {
 	private DataContainer data;
 	private DecisionNode left;
 	private DecisionNode right;
+	private int featureIndex;
 
 	public DecisionNode() {
 		this.data = null;
 		this.left = null;
 		this.right = null;
+		this.featureIndex = -1;
 	}
 
 	//if root or leaf node
@@ -15,6 +17,7 @@ public class DecisionNode {
 		this.data = data;
 		this.left = null;
 		this.right = null;
+		this.featureIndex = -1;
 	}
 
 	//if not a leaf node, impurity found, (i havent used this, maybe dont need)
@@ -22,6 +25,7 @@ public class DecisionNode {
 		this.data = data;
 		this.left = left;
 		this.right = right;
+		this.featureIndex = -1;
 	}
 
 	public DecisionNode getRight(){
@@ -42,6 +46,14 @@ public class DecisionNode {
 
     public void setData(DataContainer data) {
     	this.data = data;
+    }
+
+    public void setFeatureIndex(int index) {
+    	this.featureIndex = index;
+    }
+
+    public int getFeatureIndex() {
+    	return this.featureIndex;
     }
 
     public DataContainer getData() {

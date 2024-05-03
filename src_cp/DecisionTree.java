@@ -2,24 +2,22 @@ import java.util.Random;
 import java.lang.Math;
 import java.util.HashMap;
 
-public class DecisionTree extends DecisionNode{
+public class DecisionTree {
 	
 	private DecisionNode root;
 
 	public DecisionTree() {
-        super();
         this.root = null;
 	}
 
-	//IP, will need a for loop, but have to fix the right and left childs not connecting to parent
+	//build the tree from the root
     public void buildTree(int numOfFeatures) {
-        //will be a for loop to make many decision trees
         DataContainer bootstrappedData = new DataContainer(1000, 13); //bootstrap first
         this.root = new DecisionNode(bootstrappedData);
-        this.root = buildTreeRecursively(this.root, bootstrappedData, numOfFeatures);
+        buildTreeRecursively(this.root, bootstrappedData, numOfFeatures);
     }
 
-    //IP - ??????????, I'm not sure why the left and right childs are not linking to parent node? 
+    //helper function to recursively build the tree from the root
     private DecisionNode buildTreeRecursively(DecisionNode parentNode, DataContainer data, int numOfFeatures) {
     	if (data.isPure()) return new DecisionNode(data); //base case when pure, is return correct?
 
@@ -60,8 +58,9 @@ public class DecisionTree extends DecisionNode{
         
         //if no valid feature is found, return.
         if (bestFeatureIndexToSplit == -1) {
-            return new DecisionNode(data); //correct?
+            return new DecisionNode(data); 
         }
+
 
         //FOR TESTING
         // System.out.println("\nMAX INFO GAIN = " + maxInfoGain);
@@ -69,15 +68,18 @@ public class DecisionTree extends DecisionNode{
         // System.out.println("bestThreshold = " + bestThreshold);
         
 
+        //set the parents nodes feature index that we will split on
+        parentNode.setFeatureIndex(bestFeatureIndexToSplit);
+
         //need to split data first, then make nodes
         DataContainer leftData = data.split(true, bestFeatureIndexToSplit, bestThreshold);
         DataContainer rightData = data.split(false, bestFeatureIndexToSplit, bestThreshold);
 
         //FOR TESTING
-        // System.out.println("\nI AM THE LEFT CHILD, I SPLIT ON " + bestThreshold);
+        // System.out.println("\nI AM THE LEFT CHILD, I SPLIT ON " + bestThreshold + " which is at index of " + parentNode.getFeatureIndex());
         // leftData.print();
         // System.out.println("\n\n\n\n\n------------------");
-        // System.out.println("I AM THE RIGHT CHILD, I SPLIT ON THE REVERSE OF " + bestThreshold);
+        // System.out.println("I AM THE RIGHT CHILD, I SPLIT ON NOT OF " + bestThreshold + " which is at index of " + parentNode.getFeatureIndex());
         // rightData.print();
        
 
@@ -93,7 +95,6 @@ public class DecisionTree extends DecisionNode{
         buildTreeRecursively(leftChild, leftData, numOfFeatures);
         buildTreeRecursively(rightChild, rightData, numOfFeatures);
 
-        //correct?
         return parentNode; 
     }
 
@@ -233,10 +234,20 @@ public class DecisionTree extends DecisionNode{
     }
 
 
+    //prints the roots data
     public void print() {
     	this.root.print();
     }
 
+    //get the roots left child
+    public DecisionNode getLeft() {
+        return this.root.getLeft();
+    }
+
+    //get the roots right child 
+    public DecisionNode getRight() {
+        return this.root.getRight();
+    }
 
 
 

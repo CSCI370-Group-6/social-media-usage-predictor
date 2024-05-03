@@ -6,18 +6,31 @@ public class Test {
     public static void main(String[] args) throws IOException {
     
 
-    //tree testing (IN PROGRESS) ---------------------------------------------------
+    //random forest testing (IP) ----------------------------------------------
 
-        DecisionTree root = new DecisionTree();
-        root.buildTree(4);
+        RandomForest forest = new RandomForest(100);
+        //forest.print(); //prints the tree objects
+
+        //String input = "28,male,2,Instagram,Sports,Australia,Sub_Urban,Marketer Manager,10223,True,False,True"; 
+        //DataContainer userInput = new DataContainer(input); 
+        //userInput.print();    
+
+        //double prediction = forest.aggregate(input);
+        //System.out.println("Precition is " + prediction);
+
+
+
+    //tree testing  ---------------------------------------------------
+
+        // DecisionTree root = new DecisionTree();
+        // root.buildTree(4);
         
-        //I AM STUCK HERE, THIS SHOULD PRINT THE RIGHT CHILD BUT IT IS NULL? THE LEFT/RIGHT CHILDS ARE NOT LINKING TO THE PARENT?
-        root.getRight().print(); 
-
-
-
-
-
+        // System.out.println(root);
+        // System.out.println(root.getLeft());
+        // System.out.println(root.getRight());
+        // root.getLeft().print();
+        // root.getRight().print();
+        // root.print();
 
     //decision node test cases (Tree class will handle) --------------------------------------
 
