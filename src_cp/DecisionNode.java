@@ -3,30 +3,28 @@ public class DecisionNode {
 	private DataContainer data;
 	private DecisionNode left;
 	private DecisionNode right;
-	private int featureIndex;
+	private int featureIndex;	//the nodes feature index that it was split on
+	private String threshold;	//the nodes corresponding threshold used for the split
 
+
+	//default empty node constructor
 	public DecisionNode() {
 		this.data = null;
 		this.left = null;
 		this.right = null;
 		this.featureIndex = -1;
+		this.threshold = null;
 	}
 
-	//if root or leaf node
+	//if internal or leaf node; internal nodes will have a featureIndex and threshold set to them
 	public DecisionNode(DataContainer data) {
 		this.data = data;
 		this.left = null;
 		this.right = null;
 		this.featureIndex = -1;
+		this.threshold = null;
 	}
 
-	//if not a leaf node, impurity found, (i havent used this, maybe dont need)
-	public DecisionNode(DataContainer data, DecisionNode left, DecisionNode right) {
-		this.data = data;
-		this.left = left;
-		this.right = right;
-		this.featureIndex = -1;
-	}
 
 	public DecisionNode getRight(){
         return this.right;
@@ -34,6 +32,23 @@ public class DecisionNode {
 
     public DecisionNode getLeft(){
         return this.left;
+    }
+
+    public DataContainer getData() {
+    	return this.data;
+    }
+
+    //returns the label of the given row, label is located at index 12
+    public String getLabel(int row) {   
+    	return this.data.getValue(row, 12);
+    }
+
+    public String getThreshold() {
+    	return this.threshold;
+    }
+
+    public int getFeatureIndex() {
+    	return this.featureIndex;
     }
 
     public void setRight(DecisionNode newRight){
@@ -44,32 +59,24 @@ public class DecisionNode {
         this.left = newLeft;
     }
 
-    public void setData(DataContainer data) {
-    	this.data = data;
+    public void setData(DataContainer newData) {
+    	this.data = newData;
     }
 
     public void setFeatureIndex(int index) {
     	this.featureIndex = index;
     }
 
-    public int getFeatureIndex() {
-    	return this.featureIndex;
+    public void setThreshold(String threshold) {
+    	this.threshold = threshold;
     }
 
-    public DataContainer getData() {
-    	return this.data;
+    public boolean isLeaf() {
+    	return this.right == null && this.left == null && this.data.isPure();
     }
 
     public void print() {
     	this.data.print();
-    }
-
-    public boolean isLeaf() {
-    	return ((this.right == null && this.left == null) && (this.data.getLabelCount(0) == 0 || this.data.getLabelCount(1) == 0));
-    }
-
-    public String getLabel(int row) {
-    	return this.data.getValue(row, 12);
     }
 
 }

@@ -6,11 +6,28 @@ public class DecisionTree {
 	
 	private DecisionNode root;
 
+    //default constructor for an empty tree
 	public DecisionTree() {
         this.root = null;
 	}
 
-	//build the tree from the root
+
+    //get the roots left child
+    public DecisionNode getLeft() {
+        return this.root.getLeft();
+    }
+
+    //get the roots right child 
+    public DecisionNode getRight() {
+        return this.root.getRight();
+    }
+
+    public DecisionNode getRoot() {
+        return this.root;
+    }
+
+
+	//build the tree starting from the root
     public void buildTree(int numOfFeatures) {
         DataContainer bootstrappedData = new DataContainer(1000, 13); //bootstrap first
         this.root = new DecisionNode(bootstrappedData);
@@ -19,9 +36,16 @@ public class DecisionTree {
 
     //helper function to recursively build the tree from the root
     private DecisionNode buildTreeRecursively(DecisionNode parentNode, DataContainer data, int numOfFeatures) {
-    	if (data.isPure()) return new DecisionNode(data); //base case when pure, is return correct?
-
+    	if (data.isPure()) return new DecisionNode(data);   //return a leaf node with data, since this data is pure
     	int[] randomColumns = featureSelect(numOfFeatures); //collect random features into an array, about 3
+        
+        //FOR TESTING feature select ---------------------------
+        // System.out.print("[");
+        // for (int i = 0; i < randomColumns.length - 1; i++) {
+        //     System.out.print(randomColumns[i] + ", ");
+        // }
+        // System.out.println(randomColumns[randomColumns.length - 1] + "]");
+        //-------------------------------------------------------
 
         //find the best feature to split on
 	    double maxInfoGain = Double.NEGATIVE_INFINITY; 
@@ -44,56 +68,49 @@ public class DecisionTree {
                 threshold = mode;
             }
 
-            //FOR TESTING, seems correct
-            // System.out.println("\nthreshold = " + threshold);
-            // System.out.println("feature index = " + featureIndex);
-            // System.out.println("infoGain = " + infoGain);
-
             if (infoGain > maxInfoGain) {
 	            maxInfoGain = infoGain;
 	            bestFeatureIndexToSplit = featureIndex;
                 bestThreshold = threshold;
 	        }
 	    }
-        
-        //if no valid feature is found, return.
-        if (bestFeatureIndexToSplit == -1) {
-            return new DecisionNode(data); 
-        }
 
-
-        //FOR TESTING
+        //FOR TESTING -------------------------------------------------------
         // System.out.println("\nMAX INFO GAIN = " + maxInfoGain);
         // System.out.println("bestFeatureIndexToSplit = " + bestFeatureIndexToSplit);
         // System.out.println("bestThreshold = " + bestThreshold);
-        
+        // ------------------------------------------------------------------
 
-        //set the parents nodes feature index that we will split on
+
+        //set the parents nodes feature index that we will split on and the corresponding threshold
         parentNode.setFeatureIndex(bestFeatureIndexToSplit);
+        parentNode.setThreshold(bestThreshold);
 
-        //need to split data first, then make nodes
+        //split data first
         DataContainer leftData = data.split(true, bestFeatureIndexToSplit, bestThreshold);
         DataContainer rightData = data.split(false, bestFeatureIndexToSplit, bestThreshold);
 
-        //FOR TESTING
+        //FOR TESTING -------------------------------------------------------
         // System.out.println("\nI AM THE LEFT CHILD, I SPLIT ON " + bestThreshold + " which is at index of " + parentNode.getFeatureIndex());
         // leftData.print();
         // System.out.println("\n\n\n\n\n------------------");
         // System.out.println("I AM THE RIGHT CHILD, I SPLIT ON NOT OF " + bestThreshold + " which is at index of " + parentNode.getFeatureIndex());
         // rightData.print();
-       
+        // ------------------------------------------------------------------
 
-        //create children and input the split data
-        DecisionNode leftChild = new DecisionNode(leftData);
-        DecisionNode rightChild = new DecisionNode(rightData);
 
-        //set the parent's node to the left and right children (THIS IS NOT WORKING???)
-        parentNode.setLeft(leftChild);
-        parentNode.setRight(rightChild);
+        //deal with splits that are potentially uneven where data on either side can be empty
+        if (!leftData.isEmpty()) {
+            DecisionNode leftChild = new DecisionNode(leftData);
+            parentNode.setLeft(leftChild);
+            buildTreeRecursively(leftChild, leftData, numOfFeatures);
+        }
 
-        //call function again to build left and right children
-        buildTreeRecursively(leftChild, leftData, numOfFeatures);
-        buildTreeRecursively(rightChild, rightData, numOfFeatures);
+        if (!rightData.isEmpty()) {
+            DecisionNode rightChild = new DecisionNode(rightData);
+            parentNode.setRight(rightChild);
+            buildTreeRecursively(rightChild, rightData, numOfFeatures);
+        }
 
         return parentNode; 
     }
@@ -151,8 +168,16 @@ public class DecisionTree {
 
         //calculate giniImpurities
         double giniImpurityParent = calculateGiniImpurity(data.getLabelCount(0), data.getLabelCount(1));
-        double giniImpurityLeft = calculateGiniImpurity(leftCountLabel0, leftCountLabel1);
-        double giniImpurityRight = calculateGiniImpurity(rightCountLabel0, rightCountLabel1);
+        double giniImpurityLeft, giniImpurityRight;
+
+        //if the left side has no labels, there was a full split and the gini impurity is 0
+        if (leftCountLabel0 == 0 || leftCountLabel1 == 0) giniImpurityLeft = 0.0;
+        else giniImpurityLeft = calculateGiniImpurity(leftCountLabel0, leftCountLabel1);
+        
+        //if the right side has no labels, there was a full split and the gini impurity is 0
+        if (rightCountLabel0 == 0 || rightCountLabel1 == 0) giniImpurityRight = 0.0;
+        else giniImpurityRight = calculateGiniImpurity(rightCountLabel0, rightCountLabel1);
+
 
         //calculate IG based on giniImpurities
         int totalSamples = leftCountLabel0 + leftCountLabel1 + rightCountLabel0 + rightCountLabel1;
@@ -167,7 +192,7 @@ public class DecisionTree {
         
         int leftCountLabel0 = 0, leftCountLabel1 = 0;
         int rightCountLabel0 = 0, rightCountLabel1 = 0;
-       
+
         //use mode to count the labels for a potential split
         for (int r = 0; r < data.getRows(); r++) {
             if (data.getValue(r, featureIndex).equals(modeThreshold)) {
@@ -182,9 +207,16 @@ public class DecisionTree {
 
         //calculate giniImpurities
         double giniImpurityParent = calculateGiniImpurity(data.getLabelCount(0), data.getLabelCount(1));
-        double giniImpurityLeft = calculateGiniImpurity(leftCountLabel0, leftCountLabel1);
-        double giniImpurityRight = calculateGiniImpurity(rightCountLabel0, rightCountLabel1);
+        double giniImpurityLeft, giniImpurityRight;
 
+        //if the left side has no labels, there was a full split and the gini impurity is 0
+        if (leftCountLabel0 == 0 || leftCountLabel1 == 0) giniImpurityLeft = 0.0;
+        else giniImpurityLeft = calculateGiniImpurity(leftCountLabel0, leftCountLabel1);
+        
+        //if the right side has no labels, there was a full split and the gini impurity is 0
+        if (rightCountLabel0 == 0 || rightCountLabel1 == 0) giniImpurityRight = 0.0;
+        else giniImpurityRight = calculateGiniImpurity(rightCountLabel0, rightCountLabel1);
+    
         //calculate IG based on giniImpurities
         int totalSamples = leftCountLabel0 + leftCountLabel1 + rightCountLabel0 + rightCountLabel1;
         double informationGain = giniImpurityParent - ((double) (leftCountLabel0 + leftCountLabel1) / totalSamples * giniImpurityLeft 
@@ -228,28 +260,13 @@ public class DecisionTree {
                 }
             } while (!isUnique);
             randomColumns[i] = randCol;
-            //System.out.println(randomColumns[i]); //FOR TESTING
     	}
     	return randomColumns;
     }
 
-
     //prints the roots data
     public void print() {
-    	this.root.print();
+        this.root.print();
     }
-
-    //get the roots left child
-    public DecisionNode getLeft() {
-        return this.root.getLeft();
-    }
-
-    //get the roots right child 
-    public DecisionNode getRight() {
-        return this.root.getRight();
-    }
-
-
-
 
 }

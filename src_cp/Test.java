@@ -6,20 +6,32 @@ public class Test {
     public static void main(String[] args) throws IOException {
     
 
-    //random forest testing (IP) ----------------------------------------------
+    //random forest testing  ----------------------------------------------
 
         RandomForest forest = new RandomForest(100);
         //forest.print(); //prints the tree objects
 
-        //String input = "28,male,2,Instagram,Sports,Australia,Sub_Urban,Marketer Manager,10223,True,False,True"; 
-        //DataContainer userInput = new DataContainer(input); 
-        //userInput.print();    
+        String input = "28,male,3,Instagram,Sports,Australia,Sub_Urban,Marketer Manager,10223,True,False,True"; 
+        DataContainer userInput = new DataContainer(input); 
 
-        //double prediction = forest.aggregate(input);
-        //System.out.println("Precition is " + prediction);
+        //NOTE AT THIS TIME I AM JUST COLLECTING THE ARRAY OF PREDICTIONS SO THAT WE CAN SEE HOW IT CHANGES WITH DIFFERENT INPUTS
+        int[] prediction = forest.aggregate(userInput);
+        int label0 = 0, label1 = 0;
+        
+        System.out.println("Prediction array is: ");
+        System.out.print("[");
+        for (int i = 0; i < prediction.length - 1; i++) {
+            System.out.print(prediction[i] + ", ");
+            if (prediction[i] == 1) label1++;
+            else label0++;
+        }
+        System.out.println(prediction[99] + "]");
+        System.out.println("Label0 count = " + label0);
+        System.out.println("Label1 count = " + label1);
+        if (label0 > label1) System.out.println("NO ADDICTION");
+        else System.out.println("YES ADDICTION");
 
-
-
+ 
     //tree testing  ---------------------------------------------------
 
         // DecisionTree root = new DecisionTree();

@@ -23,7 +23,7 @@ public class DataContainer {
             e.printStackTrace();
         }
     }
-    private String[][] data; //userInput data or bootstrapped/feature selected data, for ex) userData = data[0][12] 
+    private String[][] data; //userInput data or bootstrapped data, for ex) userData = data[0][12] 
     private int rows;
     private int columns;
     private int countLabel0; //count of labels for no is not addicted
@@ -46,9 +46,9 @@ public class DataContainer {
         this.rows = 1;
         this.columns = 12;
         this.data = new String[rows][columns];
-        this.countLabel0 = 0;                       //count the 0's for this data
-        this.countLabel1 = 0;                       //count the 1's for this data
-        readUserInput(userInput);
+        this.countLabel0 = 0;                       //no labels for user input
+        this.countLabel1 = 0;                       //no labels for user input
+        this.readUserInput(userInput);
     }
 
     //constructor for bootstrapping (this function will bootstrap for us)
@@ -56,9 +56,16 @@ public class DataContainer {
         this.rows = rows;
         this.columns = columns;
         this.data = new String[rows][columns];
-        bootStrap(columns);
+        this.bootStrap(columns);
         this.countLabel0 = countLabels(data, 0);     //count the 0's for this data
         this.countLabel1 = countLabels(data, 1);     //count the 1's for this data  
+    }
+
+    //constructor for splitting data, used in the split function below
+    public DataContainer(int rows, int columns, boolean split) {
+        this.rows = rows;
+        this.columns = columns;
+        this.data = new String[rows][columns];
     }
 
 
@@ -80,15 +87,38 @@ public class DataContainer {
     public String getLabel(int row) {
         return this.getValue(row, 12);
     }
-
-    //if either label is 0, then true
-    public boolean isPure() {
-        return this.countLabel0 == 0 || this.countLabel1 == 0;
-    }
-
+    
     //gets the current row as a string array
     public String[] getRow(int rowIndex) {
         return data[rowIndex];
+    }
+
+    //returns the amount of 1's or 0's for the data object
+    public int getLabelCount(int label) {
+        if (label == 0) return this.countLabel0;
+        else if (label == 1) return this.countLabel1;
+        else {
+            System.out.println("INVALID LABEL");
+            return -1;
+        }
+    }
+    
+    private void SetCountLabel0() {
+        this.countLabel0 = countLabels(this.data, 0);
+    }
+
+    private void SetCountLabel1() {
+        this.countLabel1 = countLabels(this.data, 1);
+    }
+
+    //if either label is 0, then true
+    public boolean isPure() {
+        return (this.countLabel0 == 0 ) || (this.countLabel1 == 0);
+    }
+
+    //if the data object is empty
+    public boolean isEmpty() {
+        return rows == 0 && columns == 0;
     }
 
     //helper for counting the number of 1's and 0's in current data
@@ -98,8 +128,8 @@ public class DataContainer {
         int labelIndex = columns - 1;
         
         for (int r = 0; r < rows; r++) {
-            if (data[r][labelIndex] == "0") count0++;
-            else if (data[r][labelIndex] == "1") count1++;
+            if (data[r][labelIndex].equals("0")) count0++;
+            else if (data[r][labelIndex].equals("1")) count1++;
         }
 
         if (label == 0) return count0;
@@ -121,7 +151,6 @@ public class DataContainer {
                 for (int col = 0; col < temp[row].length && col < rowData.length; col++) {
                     temp[row][col] = rowData[col];
                 }
-                
                 int timeSpent = Integer.parseInt(rowData[2]); //ASSUME FOR NOW THAT TIMESPENT >= 4 IS A 1.
                 if (timeSpent >= 4) temp[row][12] = "1";
                 else temp[row][12] = "0";
@@ -196,7 +225,7 @@ public class DataContainer {
         for (int r = 0; r < rows; r++) {
             randomRow = rand.nextInt(1000);
             for (int c = 0; c < columns - 1; c++) {
-                data[r][c] = dataset[randomRow][c]; //load into data
+                data[r][c] = dataset[randomRow][c]; //load into data and the label
             }
             data[r][columns - 1] = dataset[randomRow][12]; //load label
         }
@@ -212,15 +241,6 @@ public class DataContainer {
         }
     }
 
-    //returns the amount of 1's or 0's for the data object
-    public int getLabelCount(int label) {
-        if (label == 0) return this.countLabel0;
-        else if (label == 1) return this.countLabel1;
-        else {
-            System.out.println("INVALID LABEL");
-            return -1;
-        }
-    }
 
     //splits the data based on a threshold and the index of that feature
     public DataContainer split(boolean leftSplit, int indexOfFeature, String threshold) {
@@ -294,9 +314,11 @@ public class DataContainer {
                 }        
             }
         }
-
+       
         //create a new data container that has the size of the array list
-        DataContainer newData = new DataContainer(temp.size(), temp.isEmpty() ? 0 : temp.get(0).size());
+        int rowSize = temp.size();
+        int columnSize = temp.isEmpty() ? 0 : temp.get(0).size();
+        DataContainer newData = new DataContainer(rowSize, columnSize, true);
 
         //fill in the new data container
         for (int r = 0; r < temp.size(); r++) {
@@ -304,6 +326,10 @@ public class DataContainer {
                 newData.addData(r, c, temp.get(r).get(c));
             }
         }
+
+        newData.SetCountLabel0();     //count the 0's for this data
+        newData.SetCountLabel1();     //count the 1's for this data
+
         return newData;
     }
 
