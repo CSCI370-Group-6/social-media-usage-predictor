@@ -36,6 +36,8 @@ public class FeatureSelectTest {
  
     public static void main(String[] args)  {
             
+        System.out.println("THE FOLLOWING SHOULD BE TRUE:");
+
         for (int i = 0; i < 100; i++) {
             int[] randomColumns = featureSelect(3); //collect random features indices (3 in this case)
             System.out.print("[");
@@ -46,6 +48,17 @@ public class FeatureSelectTest {
 
             System.out.println("\t" + isUnique(randomColumns));
         }
+
+        System.out.println("\nTHE FOLLOWING SHOULD BE FALSE:");
+
+        int notRandom1[] = {1, 1, 3};
+        int notRandom2[] = {1, 3, 3};
+        int notRandom3[] = {1, 1};
+        int notRandom4[] = {1, 1, 3, 5, 6};
+        System.out.println("[1, 1, 3]\t" + isUnique(notRandom1));
+        System.out.println("[1, 3, 3]\t" + isUnique(notRandom1));
+        System.out.println("[1, 1]\t\t" + isUnique(notRandom1));
+        System.out.println("[1, 1, 3, 5, 6]\t" + isUnique(notRandom1));
 
 	}
 }

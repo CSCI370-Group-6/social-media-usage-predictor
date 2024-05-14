@@ -91,13 +91,13 @@ public class DecisionTree {
         DataContainer rightData = data.split(false, bestFeatureIndexToSplit, bestThreshold);
 
         //FOR TESTING -------------------------------------------------------
-        System.out.println("\n\n\n\n\n--------------------------------------------------------------------------------------------");
-        System.out.println("I AM THE LEFT CHILD, I SPLIT ON " + bestThreshold + " which is at index of " + parentNode.getFeatureIndex());
+        System.out.println("\n\n\n\n\nstart--------------------------------------------------------------------------------------------");
+        System.out.println("LEFT CHILD, I SPLIT ON " + bestThreshold + " which is at index of " + parentNode.getFeatureIndex());
         leftData.print();
         System.out.println();
-        System.out.println("I AM THE RIGHT CHILD, I SPLIT ON NOT OF " + bestThreshold + " which is at index of " + parentNode.getFeatureIndex());
+        System.out.println("RIGHT CHILD, I SPLIT ON NOT OF " + bestThreshold + " which is at index of " + parentNode.getFeatureIndex());
         rightData.print();
-        System.out.println("--------------------------------------------------------------------------------------------");
+        System.out.println("end--------------------------------------------------------------------------------------------");
         // ------------------------------------------------------------------
 
 
